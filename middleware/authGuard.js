@@ -1,11 +1,11 @@
 const jwt = require("jsonwebtoken");
 const config = process.env;
 
-const verifyToken = (req, res, next) => {
-  const token =
-    req.body.token || req.query.token || req.headers["x-access-token"];
+const authGuard = (req, res, next) => {
+  let token =
+    req.body.token || req.query.token || req.headers["authorization"];
 
-  console.log("token: ", token);
+  // console.log("token: ", token);
 
   if (!token) {
     return res.status(403).json({
@@ -13,8 +13,16 @@ const verifyToken = (req, res, next) => {
     });
   }
   try {
+    token = token.split(" ")[1];
     const decoded = jwt.verify(token, config.TOKEN_KEY);
     req.user = decoded;
+
+    if (decoded.user_id !== req.params.id) {
+      return res.status(403).json({
+        message: "Vous n'avez pas le droit de modifier cet utilisateur."
+      });
+    }
+
   } catch (err) {
     return res.status(401).json({
       message: "Erreur: Veuillez vous connecter pour effectuer cette opération."
@@ -23,4 +31,4 @@ const verifyToken = (req, res, next) => {
   return next();
 };
 
-module.exports = verifyToken;
+module.exports = authGuard;
