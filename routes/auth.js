@@ -47,7 +47,7 @@ router.post("/register", async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(500).json({
-      message: err,
+      message: "Une erreur inantandue s'est produite. Veuillez réessayer plus tard.",
     });
   }
 });
