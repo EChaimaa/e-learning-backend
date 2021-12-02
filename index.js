@@ -26,7 +26,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/course", courseRoutes);
+app.use("/api/courses", courseRoutes);
 
 app.listen(process.env.PORT || 3000, () => {
   console.log("Server started at port 3000");
