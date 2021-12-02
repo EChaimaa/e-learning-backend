@@ -9,6 +9,7 @@ router.post("/register", async (req, res) => {
   
   try {
     const { email, firstname, lastname, password } = req.body;
+    console.log("****password: "+password);
     const salt = await bcrypt.genSaltSync(10);
     const hash = await bcrypt.hashSync(password, salt);
 
