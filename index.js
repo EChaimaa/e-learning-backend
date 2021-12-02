@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
 const helmet = require("helmet");
+var cors = require("cors");
 const userRoutes = require("./routes/users");
 const authRoutes = require("./routes/auth");
 const courseRoutes = require("./routes/courses");
@@ -10,6 +11,7 @@ const courseRoutes = require("./routes/courses");
 const app = express();
 
 dotenv.config();
+app.use(cors());
 
 mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true }, () => {
   console.log("Connected to MongoDB");
