@@ -6,33 +6,35 @@ const event = require("../events/eventListner");
 
 // REGISTER ROUTE
 router.post("/register", async (req, res) => {
-  const { email, firstname, lastname, password } = req.body;
-  const salt = await bcrypt.genSaltSync(10);
-  const hash = await bcrypt.hashSync(password, salt);
-
-  const oldUser = await User.findOne({ email });
-
-  if (oldUser) {
-    return res.status(409).json({
-      message: "Cette addresse email est déjà associée à un compte",
-    });
-  }
-
-  // Create activation token
-  const activationToken = jwt.sign({ email }, process.env.TOKEN_KEY, {
-    expiresIn: "24h",
-  });
-
-  const user = new User({
-    firstname,
-    lastname,
-    email,
-    password: hash,
-    activationToken,
-    isApprouved: true,
-  });
-
+  
   try {
+    const { email, firstname, lastname, password } = req.body;
+    // console.log("****password: "+password);
+    const salt = await bcrypt.genSaltSync(10);
+    const hash = await bcrypt.hashSync(password, salt);
+
+    const oldUser = await User.findOne({ email });
+
+    if (oldUser) {
+      return res.status(409).json({
+        message: "Cette addresse email est déjà associée à un compte",
+      });
+    }
+
+    // Create activation token
+    const activationToken = jwt.sign({ email }, process.env.TOKEN_KEY, {
+      expiresIn: "24h",
+    });
+
+    const user = new User({
+      firstname,
+      lastname,
+      email,
+      password: hash,
+      activationToken,
+      isApprouved: true,
+    });
+
     await user.save();
 
     // send an email to the user
@@ -46,7 +48,7 @@ router.post("/register", async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(500).json({
-      message: err,
+      message: "Une erreur inantandue s'est produite. Veuillez réessayer plus tard.",
     });
   }
 });
@@ -54,6 +56,7 @@ router.post("/register", async (req, res) => {
 // LOGIN ROUTE
 router.post("/login", async (req, res) => {
   try {
+    // console.log("****email: "+req.body.email);
     const user = await User.findOne({ email: req.body.email });
     if (!user) {
       return res.status(401).json({
