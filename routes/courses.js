@@ -42,19 +42,21 @@ router.post("/", adminGuard([roles.user]), async (req, res) => {
 
     const username = user.firstname + " " + user.lastname;
 
-    let category;
+    let id;
 
-    if (isValidObjectId(categoryId)) {
-      category = await Category.findById(categoryId);
-    } else {
-      const cat = new Category({
-        title: categoryId,
-        description: "",
-      });
-      category = await cat.save();
+    if (!isValidObjectId(categoryId)) {
+      const foundCat = await Category.findOne({ title: categoryId });
+      if (foundCat != null) {
+        id = foundCat._id?.toString();
+      } else {
+        let cat = new Category({
+          title: categoryId,
+          description: "",
+        });
+        cat = await cat.save();
+        id = cat._id?.toString();
+      }
     }
-
-    const catId = category._id.toString();
 
     const newCourse = new Course({
       email,
@@ -65,7 +67,7 @@ router.post("/", adminGuard([roles.user]), async (req, res) => {
       paragraphs,
       quiz,
       username,
-      categoryId: catId,
+      categoryId: id,
     });
 
     const savedCourse = await newCourse.save();
@@ -89,6 +91,20 @@ router.put("/", adminGuard([roles.user]), async (req, res) => {
       return res.status(404).json({
         message: "cours introuvable",
       });
+    }
+    const categoryId = req.body.categoryId;
+    if (!isValidObjectId(categoryId)) {
+      const foundCat = await Category.findOne({ title: categoryId });
+      if (foundCat != null) {
+        req.body.categoryId = foundCat._id?.toString();
+      } else {
+        let newCat = new Category({
+          title: categoryId,
+          description: "",
+        });
+        newCat = await newCat.save();
+        req.body.categoryId = newCat._id?.toString();
+      }
     }
 
     Course.findOneAndUpdate(
