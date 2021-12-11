@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const { isValidObjectId } = require("mongoose");
 const adminGuard = require("../middleware/adminGuard");
 const roles = require("../middleware/authRoles");
 const Category = require("../models/Category");
@@ -31,14 +32,7 @@ router.post("/", adminGuard([roles.user]), async (req, res) => {
       quiz,
       categoryId,
     } = req.body;
-    /* const oldCourse = await Course.findOne({title});
 
-  if (oldCourse) {
-    return res.status(409).json({
-      message: "Ce cours existe déjà",
-    });
-  }
-*/
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(409).json({
@@ -48,12 +42,19 @@ router.post("/", adminGuard([roles.user]), async (req, res) => {
 
     const username = user.firstname + " " + user.lastname;
 
-    const category = await Category.findById(categoryId);
-    if (!category) {
-      return res.status(409).json({
-        message: `Aucune catégorie trouvée avec l'identifiant ${categoryId}`,
+    let category;
+
+    if (isValidObjectId(categoryId)) {
+      category = await Category.findById(categoryId);
+    } else {
+      const cat = new Category({
+        title: categoryId,
+        description: "",
       });
+      category = await cat.save();
     }
+
+    const catId = category._id.toString();
 
     const newCourse = new Course({
       email,
@@ -64,14 +65,13 @@ router.post("/", adminGuard([roles.user]), async (req, res) => {
       paragraphs,
       quiz,
       username,
-      categoryId,
+      categoryId: catId,
     });
 
-    await newCourse.save().then((doc) => {
-      res.status(201).json({
-        message: "Cours créé avec succès",
-        course: doc,
-      });
+    const savedCourse = await newCourse.save();
+    res.status(201).json({
+      message: "Cours créé avec succès",
+      course: savedCourse,
     });
   } catch (error) {
     console.log(error);

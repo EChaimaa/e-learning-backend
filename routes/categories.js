@@ -36,11 +36,10 @@ router.post("/", adminGuard([roles.user]), async (req, res) => {
       description,
     });
 
-    await newCategory.save().then((doc) => {
-      res.status(201).json({
-        message: "Catégorie créé avec succès",
-        category: doc,
-      });
+    const savedCategory = await newCategory.save();
+    res.status(201).json({
+      message: "Catégorie créé avec succès",
+      category: savedCategory,
     });
   } catch (error) {
     console.log(error);

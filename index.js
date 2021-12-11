@@ -8,7 +8,7 @@ const userRoutes = require("./routes/users");
 const authRoutes = require("./routes/auth");
 const courseRoutes = require("./routes/courses");
 const quizRoutes = require("./routes/quizs");
-const categoryRoutes = require("./routes/category");
+const categoryRoutes = require("./routes/categories");
 
 const app = express();
 
