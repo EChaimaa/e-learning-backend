@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const adminGuard = require("../middleware/adminGuard");
 const roles = require("../middleware/authRoles");
+const Category = require("../models/Category");
 const Course = require("../models/Course");
 const User = require("../models/User");
 
@@ -20,8 +21,16 @@ router.get("/", async (req, res) => {
 //Ajouter un cours
 router.post("/", adminGuard([roles.user]), async (req, res) => {
   try {
-    const { email, title, description, image, video, paragraphs, quiz } =
-      req.body;
+    const {
+      email,
+      title,
+      description,
+      image,
+      video,
+      paragraphs,
+      quiz,
+      categoryId,
+    } = req.body;
     /* const oldCourse = await Course.findOne({title});
 
   if (oldCourse) {
@@ -36,7 +45,15 @@ router.post("/", adminGuard([roles.user]), async (req, res) => {
         message: "Cet utilisateur n'existe pas",
       });
     }
+
     const username = user.firstname + " " + user.lastname;
+
+    const category = await Category.findById(categoryId);
+    if (!category) {
+      return res.status(409).json({
+        message: `Aucune catégorie trouvée avec l'identifiant ${categoryId}`,
+      });
+    }
 
     const newCourse = new Course({
       email,
@@ -47,6 +64,7 @@ router.post("/", adminGuard([roles.user]), async (req, res) => {
       paragraphs,
       quiz,
       username,
+      categoryId,
     });
 
     await newCourse.save().then((doc) => {
@@ -59,7 +77,7 @@ router.post("/", adminGuard([roles.user]), async (req, res) => {
     console.log(error);
     res.status(500).json({
       message:
-        "Une erreur inantandue s'est produite. Veuillez réessayer plus tard.",
+        "Une erreur inatendue s'est produite. Veuillez réessayer plus tard.",
     });
   }
 });
@@ -93,22 +111,35 @@ router.put("/", adminGuard([roles.user]), async (req, res) => {
       }
     );
   } catch (error) {
-    console.logt(error);
+    console.log(error);
+    res.status(500).json({
+      message:
+        "Une erreur inatendue s'est produite. Veuillez réessayer plus tard.",
+    });
   }
 });
 
+//Supprimer un cours
 router.delete("/", adminGuard([roles.user]), async (req, res) => {
-  if (!(await Course.findById(req.query.id))) {
-    return res.status(404).json({
-      message: "cours introuvable",
+  try {
+    if (!(await Course.findById(req.query.id))) {
+      return res.status(404).json({
+        message: "cours introuvable",
+      });
+    }
+
+    await Course.findByIdAndRemove(req.query.id);
+
+    return res.status(200).json({
+      message: "Cours supprimé avec succès.",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message:
+        "Une erreur inatendue s'est produite. Veuillez réessayer plus tard.",
     });
   }
-
-  await Course.findByIdAndRemove(req.query.id);
-
-  return res.status(200).json({
-    message: "Cours supprimé avec succès.",
-  });
 });
 
 module.exports = router;

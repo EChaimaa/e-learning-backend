@@ -8,6 +8,7 @@ const userRoutes = require("./routes/users");
 const authRoutes = require("./routes/auth");
 const courseRoutes = require("./routes/courses");
 const quizRoutes = require("./routes/quizs");
+const categoryRoutes = require("./routes/category");
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/quizs", quizRoutes);
+app.use("/api/categories", categoryRoutes);
 
 app.listen(process.env.PORT || 3000, () => {
   console.log("Server started at port 3000");

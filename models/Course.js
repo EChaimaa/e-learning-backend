@@ -47,6 +47,10 @@ const CourseSchema = new mongoose.Schema(
       default: [],
       required: true,
     },
+    categoryId: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true }
 );
