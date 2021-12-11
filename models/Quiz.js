@@ -24,12 +24,6 @@ const QuizSchema = new mongoose.Schema(
       type: Boolean,
       required: true,
     },
-    shown: {
-      type: Boolean,
-    },
-    passed: {
-      type: Boolean,
-    },
     choices: {
       type: Array,
       default: [],

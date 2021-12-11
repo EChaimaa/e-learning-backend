@@ -6,6 +6,7 @@ const helmet = require("helmet");
 const userRoutes = require("./routes/users");
 const authRoutes = require("./routes/auth");
 const courseRoutes = require("./routes/courses");
+const quizRoutes = require("./routes/quizs");
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.get("/", (req, res) => {
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/courses", courseRoutes);
+app.use("/api/quizs", quizRoutes);
 
 app.listen(process.env.PORT || 3000, () => {
   console.log("Server started at port 3000");

@@ -38,7 +38,7 @@ router.put(
       }
 
       User.findOneAndUpdate(
-        { _id: id },
+        { _id: req.query.id },
         req.body.user,
         { new: true },
         (err, doc) => {

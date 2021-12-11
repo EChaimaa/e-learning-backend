@@ -3,10 +3,10 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const event = require("../events/eventListner");
+const roles = require("../middleware/authRoles");
 
 // REGISTER ROUTE
 router.post("/register", async (req, res) => {
-  
   try {
     const { email, firstname, lastname, password } = req.body;
     // console.log("****password: "+password);
@@ -20,7 +20,6 @@ router.post("/register", async (req, res) => {
         message: "Cette addresse email est déjà associée à un compte",
       });
     }
-
     // Create activation token
     const activationToken = jwt.sign({ email }, process.env.TOKEN_KEY, {
       expiresIn: "24h",
@@ -33,6 +32,7 @@ router.post("/register", async (req, res) => {
       password: hash,
       activationToken,
       isApprouved: true,
+      roles:[roles.user]
     });
 
     await user.save();
@@ -48,7 +48,8 @@ router.post("/register", async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(500).json({
-      message: "Une erreur inantandue s'est produite. Veuillez réessayer plus tard.",
+      message:
+        "Une erreur inantandue s'est produite. Veuillez réessayer plus tard.",
     });
   }
 });

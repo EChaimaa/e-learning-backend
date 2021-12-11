@@ -25,7 +25,7 @@ const CourseSchema = new mongoose.Schema(
       min: 3,
       max: 500,
     },
-    username: {
+    email: {
       type: String,
       required: true,
       min: 3,
