@@ -31,6 +31,12 @@ const CourseSchema = new mongoose.Schema(
       min: 3,
       max: 500,
     },
+    username: {
+      type: String,
+      required: false,
+      min: 3,
+      max: 500,
+    },
     paragraphs: {
       type: Array,
       default: [],

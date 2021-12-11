@@ -36,6 +36,8 @@ router.post("/", adminGuard([roles.user]), async (req, res) => {
         message: "Cet utilisateur n'existe pas",
       });
     }
+    const username = user.firstname + " " + user.lastname;
+
     const newCourse = new Course({
       email,
       title,
@@ -44,6 +46,7 @@ router.post("/", adminGuard([roles.user]), async (req, res) => {
       video,
       paragraphs,
       quiz,
+      username,
     });
 
     await newCourse.save().then((doc) => {
