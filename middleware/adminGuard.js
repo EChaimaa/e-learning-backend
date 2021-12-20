@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
-const { hasRole, hasAnyRole } = require("../utils/roleUtils");
+const { hasAnyRole } = require("../utils/roleUtils");
 const { admin } = require("./authRoles");
 const config = process.env;
 

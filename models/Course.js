@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 
 const CourseSchema = new mongoose.Schema(
   {
+    numViews: {
+      type: Number,
+      default: 0
+    },
     title: {
       type: String,
       required: true,

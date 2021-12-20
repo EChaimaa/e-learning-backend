@@ -158,4 +158,89 @@ router.delete("/", adminGuard([roles.user]), async (req, res) => {
   }
 });
 
+//modifier le nombre de vues
+router.put("/updateViews", adminGuard([roles.user]), async (req, res) => {
+  try {
+    if (!(await Course.findById(req.query.id))) {
+      return res.status(404).json({
+        message: "cours introuvable",
+      });
+    }
+
+    let course = await Course.findById(req.query.id );
+    course.numViews =  course.numViews + 1;
+    
+    Course.findOneAndUpdate(
+      { _id: req.query.id },
+      course,
+      { new: true },
+      (err, doc) => {
+        if (err) {
+          return res.status(500).json({
+            message: "Une erreur est survenue lors de l'incrémentation du nombre des vues du cours",
+            error: err,
+          });
+        }
+        if (doc) {
+          return res.status(200).json({
+            message: "Le nombre de vues de ce cours a été bien modifié",
+            course: doc,
+          });
+        }
+      }
+    );
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message:
+        "Une erreur inatendue s'est produite. Veuillez réessayer plus tard.",
+    });
+  }
+});
+
+//modifier les quizs
+router.put("/respond", adminGuard([roles.user]), async (req, res) => {
+  try {
+    if (!(await Course.findById(req.query.id))) {
+      return res.status(404).json({
+        message: "cours introuvable",
+      });
+    }
+
+    let course = await Course.findById(req.query.id );
+    
+    course.quiz.forEach(element => {
+      if(element.beginTime === req.body.beginTime){
+        element.responses.push({name: req.body.name, correct: req.body.correct})
+      }
+    });
+   
+    Course.findOneAndUpdate(
+      { _id: req.query.id },
+      course,
+      { new: true },
+      (err, doc) => {
+        if (err) {
+          return res.status(500).json({
+            message: "Une erreur est survenue lors de l'incrémentation du nombre des vues du cours",
+            error: err,
+          });
+        }
+        if (doc) {
+          return res.status(200).json({
+            message: "Le nombre de vues de ce cours a été bien modifié",
+            course: doc,
+          });
+        }
+      }
+    );
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message:
+        "Une erreur inatendue s'est produite. Veuillez réessayer plus tard.",
+    });
+  }
+});
+
 module.exports = router;
