@@ -213,15 +213,18 @@ router.put(
           message: "cours introuvable",
         });
       }
-
       course.quiz.forEach((element) => {
         if (element.beginTime == req.body.beginTime) {
-          element.responses.push({
-            name: req.body.name,
-            correct: req.body.correct,
-          });
+          if (!element.responses.find((resp) => resp.name == req.body.name)) {
+            element.responses.push({
+              name: req.body.name,
+              correct: req.body.correct,
+            });
+          }
+          return;
         }
       });
+
       Course.findOneAndUpdate(
         { _id: req.query.id },
         course,
