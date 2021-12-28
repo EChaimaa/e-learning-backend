@@ -201,52 +201,56 @@ router.put("/updateViews", adminGuard([roles.user]), async (req, res) => {
 });
 
 //modifier les quizs
-router.put("/respond", adminGuard([roles.user]), async (req, res) => {
-  try {
-    let course = await Course.findById(req.query.id);
+router.put(
+  "/respond",
+  adminGuard([roles.user, roles.etudiant, roles.superAdmin]),
+  async (req, res) => {
+    try {
+      let course = await Course.findById(req.query.id);
 
-    if (!course) {
-      return res.status(404).json({
-        message: "cours introuvable",
-      });
-    }
-
-    course.quiz.forEach((element) => {
-      if (element.beginTime === req.body.beginTime) {
-        element.responses.push({
-          name: req.body.name,
-          correct: req.body.correct,
+      if (!course) {
+        return res.status(404).json({
+          message: "cours introuvable",
         });
       }
-    });
 
-    Course.findOneAndUpdate(
-      { _id: req.query.id },
-      course,
-      { new: true },
-      (err, doc) => {
-        if (err) {
-          return res.status(500).json({
-            message:
-              "Une erreur est survenue lors de modification de quiz pour ce cours",
-            error: err,
+      course.quiz.forEach((element) => {
+        if (element.beginTime === req.body.beginTime) {
+          element.responses.push({
+            name: req.body.name,
+            correct: req.body.correct,
           });
         }
-        if (doc) {
-          return res.status(200).json({
-            message: "Le quiz de ce cours a été bien modifié",
-            course: doc,
-          });
+      });
+
+      Course.findOneAndUpdate(
+        { _id: req.query.id },
+        course,
+        { new: true },
+        (err, doc) => {
+          if (err) {
+            return res.status(500).json({
+              message:
+                "Une erreur est survenue lors de modification de quiz pour ce cours",
+              error: err,
+            });
+          }
+          if (doc) {
+            return res.status(200).json({
+              message: "Le quiz de ce cours a été bien modifié",
+              course: doc,
+            });
+          }
         }
-      }
-    );
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      message:
-        "Une erreur inatendue s'est produite. Veuillez réessayer plus tard.",
-    });
+      );
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        message:
+          "Une erreur inatendue s'est produite. Veuillez réessayer plus tard.",
+      });
+    }
   }
-});
+);
 
 module.exports = router;

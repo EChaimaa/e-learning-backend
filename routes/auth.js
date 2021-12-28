@@ -32,7 +32,7 @@ router.post("/register", async (req, res) => {
       password: hash,
       activationToken,
       isApprouved: true,
-      roles:[roles.user]
+      roles: [roles.etudiant],
     });
 
     await user.save();
