@@ -215,14 +215,13 @@ router.put(
       }
 
       course.quiz.forEach((element) => {
-        if (element.beginTime === req.body.beginTime) {
+        if (element.beginTime == req.body.beginTime) {
           element.responses.push({
             name: req.body.name,
             correct: req.body.correct,
           });
         }
       });
-
       Course.findOneAndUpdate(
         { _id: req.query.id },
         course,
