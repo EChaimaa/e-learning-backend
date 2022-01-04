@@ -5,6 +5,8 @@ const roles = require("../middleware/authRoles");
 const Category = require("../models/Category");
 const Course = require("../models/Course");
 const User = require("../models/User");
+const multer = require('multer');
+const path = require('path');
 
 //Récupérer la liste des cours
 router.get("/", async (req, res) => {
@@ -19,19 +21,60 @@ router.get("/", async (req, res) => {
   }
 });
 
+
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/' + file.fieldname)
+  },
+  filename: function (req, file, cb) {
+    cb(null, new Date().toISOString().replace(/:/g, '-') + file.originalname)
+  }
+});
+
+var upload = multer({ storage: storage });
+
+
+const cpUpload = upload.fields([{ name: 'images', maxCount: 1 }, { name: 'videos', maxCount: 1 }]);
+
+// const baseUrl = "http://192.168.11.103:3000/";
+const baseUrl = "https://elearning-fstg.herokuapp.com/";
+
 //Ajouter un cours
-router.post("/", adminGuard([roles.user]), async (req, res) => {
+router.post("/", adminGuard([roles.user]), cpUpload, async (req, res) => {
   try {
+    const files = req.files
+    if (!files || files.images.length === 0 || files.videos.length === 0) {
+      const error = new Error('Certains fichers manquent, veuillez réessayer')
+      error.httpStatusCode = 400
+      return next(error)
+    }
+
+    const image = baseUrl + req.files.images[0].path.replace(/\\/g, "/");
+    const video = baseUrl + req.files.videos[0].path.replace(/\\/g, "/");
+
     const {
       email,
       title,
       description,
-      image,
-      video,
       paragraphs,
       quiz,
       categoryId,
     } = req.body;
+
+    const paras = JSON.parse(paragraphs);
+
+    const quizToSave = JSON.parse(quiz);
+    quizToSave.map((q) => {
+      q.uniqueChoice = JSON.parse(q.uniqueChoice);
+      q.beginTime = parseInt(q.beginTime);
+      q.endTime = parseInt(q.endTime);
+      q.responses = [];
+      q.choices = JSON.parse(q.choices).map(choice => ({
+        order: parseInt(choice.order),
+        text: choice.text,
+        correct: JSON.parse(choice.correct),
+      }));
+    });
 
     const user = await User.findOne({ email });
     if (!user) {
@@ -42,7 +85,7 @@ router.post("/", adminGuard([roles.user]), async (req, res) => {
 
     const username = user.firstname + " " + user.lastname;
 
-    let id;
+    let id = categoryId;
 
     if (!isValidObjectId(categoryId)) {
       const foundCat = await Category.findOne({ title: categoryId });
@@ -64,8 +107,8 @@ router.post("/", adminGuard([roles.user]), async (req, res) => {
       description,
       image,
       video,
-      paragraphs,
-      quiz,
+      paragraphs: paras,
+      quiz: quizToSave,
       username,
       categoryId: id,
     });
